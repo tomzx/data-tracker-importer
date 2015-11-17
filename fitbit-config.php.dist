@@ -1,0 +1,16 @@
+<?php
+
+return [
+	'data-tracker-url' => 'http://data-tracker.dev/',
+
+	'oauth' => [
+		'client_id' => '',
+		'client_secret' => '',
+		'redirect_url' => 'http://localhost/'
+	],
+
+	'keys' => [
+		'heart-pulse' => 'fitbit.heart-pulse'
+	],
+];
+

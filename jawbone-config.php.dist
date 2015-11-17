@@ -1,0 +1,14 @@
+<?php
+
+return [
+	'data-tracker-url' => 'http://data-tracker.dev/',
+
+	'headers' => [
+		'x-nudge-device-id' => '',
+		'x-nudge-token'     => '',
+	],
+
+	'keys' => [
+		'heart-pulse' => 'jawbone.heart-pulse'
+	],
+];
