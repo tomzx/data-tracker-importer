@@ -1,12 +1,8 @@
 <?php
 
-function buildHeader(array $items)
-{
-	$items = array_map(function ($a, $b) {
-		return $a . ': ' . $b;
-	}, array_keys($items), $items);
-	return implode("\r\n", $items);
-}
+require_once __DIR__ . '/vendor/autoload.php';
+
+use GuzzleHttp\Client;
 
 function getDataTrackerUrl()
 {
@@ -17,55 +13,56 @@ function getDataTrackerUrl()
 function getDataTracker($url)
 {
 	$url = getDataTrackerUrl() . $url;
-	return json_decode(file_get_contents($url), true);
+	$client = new Client();
+	$response = $client->request('GET', $url);
+	$response = $response->getBody();
+	return json_decode($response, true);
 }
 
 function postDataTracker($url, array $data)
 {
-	$url = getDataTrackerUrl() . $url;
 	$content = json_encode($data);
-
-	$context = stream_context_create([
-		'http' => [
-			'method'  => 'POST',
-			'header'  => buildHeader([
-				'Content-Type' => 'application/json;charset=UTF-8',
-			]),
-			'content' => $content,
+	$options = [
+		'headers' => [
+			'Content-Type' => 'application/json;charset=UTF-8',
 		],
-	]);
+		'body' => $content,
+	];
 
-	return json_decode(file_get_contents($url, null, $context), true);
+	$url = getDataTrackerUrl() . $url;
+	$client = new Client();
+	$response = $client->request('POST', $url, $options);
+	$response = $response->getBody();
+	return json_decode($response, true);
 }
 
 function getJson($url, array $headers = [])
 {
-	$contextData = [
-		'http' => [
-			'header' => buildHeader($headers),
-		],
+	$response = get($url, $headers);
+	return json_decode($response, true);
+}
+
+function get($url, $headers = [])
+{
+	$options = [
+		'headers' => $headers,
 	];
 
-	$context = stream_context_create($contextData);
-
-	$result = file_get_contents($url, null, $context);
-	$result = gzdecode($result);
-	return json_decode($result, true);
+	$client = new Client();
+	$response = $client->request('GET', $url, $options);
+	$content = $response->getBody()->getContents();
+	return $content;
 }
 
 function post($url, array $data = [], array $headers)
 {
-	$contextData = [
-		'http' => [
-			'method'  => 'POST',
-			'header'  => buildHeader($headers + [
-					'Content-Type' => 'application/x-www-form-urlencoded',
-				]),
-			'content' => http_build_query($data),
-		],
+	$options = [
+		'headers' => $headers,
+		'forms_params' => $data,
 	];
 
-	$context = stream_context_create($contextData);
-
-	return json_decode(file_get_contents($url, null, $context), true);
+	$client = new Client();
+	$response = $client->request('POST', $url, $options);
+	$response = $response->getBody()->getContents();
+	return json_decode($response, true);
 }

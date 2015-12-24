@@ -4,7 +4,7 @@ require_once __DIR__ . '/shared.php';
 
 $config = require_once __DIR__ . '/jawbone-config.php';
 
-function get($url)
+function jawboneGet($url)
 {
 	global $config;
 	$headers = $config['headers'] + [
@@ -26,11 +26,15 @@ $lastHeartRateDatapoint = getDataTracker('logs/' . $key . '?order=desc&limit=1&k
 
 $start = $lastHeartRateDatapoint ? $lastHeartRateDatapoint[0][0] : time() - 7 * 60 * 60 * 24;
 $end = time();
-$data = get('heartrates?start_time='.$start.'&end_time='.$end.'&limit=31');
+$data = jawboneGet('heartrates?start_time='.$start.'&end_time='.$end.'&limit=31');
 //$data = json_decode(file_get_contents('jawbone-data.json'), true);
 $heartRateStats = [];
 foreach ($data['data']['items'] as $dayStat) {
 	foreach ($dayStat['bg_move_day_hr_ticks'] as $stat) {
+		if ($stat['time'] <= $start) {
+			continue;
+		}
+
 		$heartRateStats[$stat['time']] = [
 			'_timestamp' => $stat['time'],
 			$key         => $stat['hr'],
@@ -38,6 +42,10 @@ foreach ($data['data']['items'] as $dayStat) {
 	}
 
 	foreach ($dayStat['bg_sleep_day_hr_ticks'] as $stat) {
+		if ($stat['time'] <= $start) {
+			continue;
+		}
+
 		$heartRateStats[$stat['time']] = [
 			'_timestamp' => $stat['time'],
 			$key         => $stat['hr'],
@@ -49,3 +57,6 @@ ksort($heartRateStats);
 // Insert datapoints in the dataTracker
 $out = postDataTracker('logs/bulk', array_values($heartRateStats));
 var_dump($out);
+
+// TODO: Add steps <tom@tomrochette.com>
+// TODO: Add sleep <tom@tomrochette.com>
