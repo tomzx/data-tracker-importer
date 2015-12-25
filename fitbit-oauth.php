@@ -10,8 +10,7 @@ if (isset($_GET['code'])) {
 	$url = 'https://api.fitbit.com/oauth2/token?client_id=' . $config['oauth']['client_id'] . '&grant_type=authorization_code&redirect_uri=' . urlencode($config['oauth']['redirect_url']) . '&code=' . $code;
 
 	$headers = [
-		'Authorization' => 'Basic '.base64_encode($config['oauth']['client_id'].':'.$config['oauth']['client_secret']),
-		'Content-Type' => 'application/x-www-form-urlencoded',
+		'Authorization' => fitbitBasicAuthorization(),
 	];
 
 	try {
@@ -21,6 +20,8 @@ if (isset($_GET['code'])) {
 	}
 
 	file_put_contents('fitbit.json', json_encode($result, JSON_PRETTY_PRINT));
+
+	echo 'Token updated!';
 	return;
 }
 

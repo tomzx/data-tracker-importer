@@ -58,11 +58,17 @@ function post($url, array $data = [], array $headers)
 {
 	$options = [
 		'headers' => $headers,
-		'forms_params' => $data,
+		'form_params' => $data,
 	];
 
 	$client = new Client();
 	$response = $client->request('POST', $url, $options);
 	$response = $response->getBody()->getContents();
 	return json_decode($response, true);
+}
+
+function fitbitBasicAuthorization()
+{
+	global $config;
+	return 'Basic '.base64_encode($config['oauth']['client_id'].':'.$config['oauth']['client_secret']);
 }

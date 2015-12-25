@@ -39,7 +39,6 @@ function fitbitGet($url)
 
 function handleError($result)
 {
-	global $config;
 	global $token;
 
 	if ($result === null || (isset($result['errors'][0]['errorType']) && $result['errors'][0]['errorType'] === 'invalid_token')) {
@@ -49,7 +48,7 @@ function handleError($result)
 		];
 
 		$headers = [
-			'Authorization' => 'Basic '.base64_encode($config['oauth']['client_id'].':'.$config['oauth']['client_secret']),
+			'Authorization' => fitbitBasicAuthorization(),
 		];
 
 		$url = 'https://api.fitbit.com/oauth2/token';
